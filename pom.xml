@@ -26,14 +26,12 @@
 			<!--scope>test</scope-->
 		</dependency>
 
-
 		<dependency>
 			<groupId>io.cucumber</groupId>
 			<artifactId>cucumber-java</artifactId>
 			<version>7.14.0</version>
 			<!--scope>test</scope-->
 		</dependency>
-
 
 		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
 		<dependency>
@@ -75,6 +73,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-
 	</build>
+	
 </project>
