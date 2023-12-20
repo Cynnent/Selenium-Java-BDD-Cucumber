@@ -18,13 +18,15 @@ import framework.utils.PageLocatorsManager;
 import framework.utils.TestContext;
 import io.cucumber.java.en.When;
 
-public class WhenSteps {
+public class WhenSteps extends SupportSteps{
 
-	private WebDriver driver;
+	private static WebDriver driver;
 	private Logger logger;
 	private TestContext testContext;
 
 	public WhenSteps() {
+		super(Hooks.getThreadSafeDriver());
+		driver = super.driver;
 		driver = Hooks.getThreadSafeDriver();
 		logger = Hooks.getThreadSafeLogger();
 		testContext = Hooks.getThreadSafeTestContext();
@@ -32,7 +34,7 @@ public class WhenSteps {
 
 	@When("I (click|doubleclick) on the (link|button|element) \"(.*)\"$")
 	public void clickElement(String action, String elementType, String elementSelector) {
-		WebElement element = getElement(elementSelector);
+		WebElement element = super.getElement(elementSelector);
 		LogUtils.logInfo(logger, "Performing {} on {} with selector '{}'", action, elementType, elementSelector);
 		if ("click".equals(action)) {
 			element.click();
@@ -45,7 +47,7 @@ public class WhenSteps {
 
 	@When("^I (add|set) \"(.*)\" to the inputfield \"(.*)\"$")
 	public void setInputField(String action, String value, String elementSelector) {
-		WebElement inputField = getElement(elementSelector);
+		WebElement inputField = super.getElement(elementSelector);
 		LogUtils.logInfo(logger, "{} value '{}' to the input field with selector '{}'", action, value, elementSelector);
 
 		if ("add".equalsIgnoreCase(action)) {
@@ -237,18 +239,18 @@ public class WhenSteps {
 		LogUtils.logInfo(logger, "Switching to the iframe with selector '{}'", iframeSelector);
 	}
 
-	private By getLocator(String elementSelector) {
-		PageLocatorsManager pageLocatorsManager = new PageLocatorsManager(driver);
-		return pageLocatorsManager.getLocator(elementSelector);
-	}
-
-	private WebElement getElement(String elementSelector) {
-		By locatorvalue = getLocator(elementSelector);
-		return driver.findElement(locatorvalue);
-	}
-
-	private List<WebElement> getElements(String elementSelector) {
-		By locatorvalue = getLocator(elementSelector);
-		return driver.findElements(locatorvalue);
-	}
+//	private By getLocator(String elementSelector) {
+//		PageLocatorsManager pageLocatorsManager = new PageLocatorsManager(driver);
+//		return pageLocatorsManager.getLocator(elementSelector);
+//	}
+//
+//	private WebElement getElement(String elementSelector) {
+//		By locatorvalue = getLocator(elementSelector);
+//		return driver.findElement(locatorvalue);
+//	}
+//
+//	private List<WebElement> getElements(String elementSelector) {
+//		By locatorvalue = getLocator(elementSelector);
+//		return driver.findElements(locatorvalue);
+//	}
 }

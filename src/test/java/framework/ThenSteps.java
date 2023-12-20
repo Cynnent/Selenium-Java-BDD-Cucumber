@@ -26,16 +26,19 @@ import framework.utils.PageLocatorsManager;
 import framework.utils.TestContext;
 import io.cucumber.java.en.Then;
 
-public class ThenSteps {
+public class ThenSteps extends SupportSteps{
 
-	private WebDriver driver;
+	private static WebDriver driver;
 	private Logger logger;
 	private TestContext testContext;
 
 	public ThenSteps() {
+		super(Hooks.getThreadSafeDriver());
+		driver = super.driver;
 		driver = Hooks.getThreadSafeDriver();
 		logger = Hooks.getThreadSafeLogger();
 		testContext = Hooks.getThreadSafeTestContext();
+		
 	}
 
 	@Then("^I expect that the title is( not)* \"(.*)\"$")
@@ -601,19 +604,19 @@ public class ThenSteps {
 		}
 	}
 
-	private By getLocator(String elementSelector) {
-		PageLocatorsManager pageLocatorsManager = new PageLocatorsManager(driver);
-		return pageLocatorsManager.getLocator(elementSelector);
-	}
-
-	private WebElement getElement(String elementSelector) {
-		By locatorvalue = getLocator(elementSelector);
-		return driver.findElement(locatorvalue);
-	}
-
-	private List<WebElement> getElements(String elementSelector) {
-		By locatorvalue = getLocator(elementSelector);
-		return driver.findElements(locatorvalue);
-	}
+//	private By getLocator(String elementSelector) {
+//		PageLocatorsManager pageLocatorsManager = new PageLocatorsManager(driver);
+//		return pageLocatorsManager.getLocator(elementSelector);
+//	}
+//
+//	private WebElement getElement(String elementSelector) {
+//		By locatorvalue = getLocator(elementSelector);
+//		return driver.findElement(locatorvalue);
+//	}
+//
+//	private List<WebElement> getElements(String elementSelector) {
+//		By locatorvalue = getLocator(elementSelector);
+//		return driver.findElements(locatorvalue);
+//	}
 
 }
