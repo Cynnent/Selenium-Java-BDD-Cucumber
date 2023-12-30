@@ -6,33 +6,31 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.Point;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import framework.utils.PageLocatorsManager;
 import framework.utils.TestContext;
+import framework.utils.WaitUtils;
 import io.cucumber.java.en.Given;
 
 public class GivenSteps extends SupportSteps{
 
-	private static WebDriver driver;
 	private Logger logger;
 	private TestContext testContext;
+	private WaitUtils waitUtils;
 
 	public GivenSteps() {
 		super(Hooks.getThreadSafeDriver());
-		driver = super.driver;
+//		driver = super.driver;
 		logger = Hooks.getThreadSafeLogger();
 		testContext = Hooks.getThreadSafeTestContext();
+		waitUtils = new WaitUtils();
 	}
 
 	@Given("^I open the url \"(.*)\"$")
@@ -47,7 +45,7 @@ public class GivenSteps extends SupportSteps{
 	public void checkElementVisibility(String elementSelector, String notPresent) {
 		logger.info("Checking visibility of element: {}", elementSelector);
 		WebElement element = getElement(elementSelector);
-
+		waitUtils.waitForElementToBeClickable(getLocator(elementSelector));
 		boolean isDisplayed = element.isDisplayed();
 
 		if ("not".equals(notPresent)) {
@@ -301,7 +299,6 @@ public class GivenSteps extends SupportSteps{
 				driver.close();
 			}
 		}
-
 		driver.switchTo().window(originalWindow);
 	}
 
@@ -335,19 +332,4 @@ public class GivenSteps extends SupportSteps{
 			assertFalse("Expected " + modalType + " to not be open, but it was.", actualOpen);
 		}
 	}
-
-//	private By getLocator(String elementSelector) {
-//		PageLocatorsManager pageLocatorsManager = new PageLocatorsManager(driver);
-//		return pageLocatorsManager.getLocator(elementSelector);
-//	}
-//
-//	private WebElement getElement(String elementSelector) {
-//		By locatorvalue = getLocator(elementSelector);
-//		return driver.findElement(locatorvalue);
-//	}
-//
-//	private List<WebElement> getElements(String elementSelector) {
-//		By locatorvalue = getLocator(elementSelector);
-//		return driver.findElements(locatorvalue);
-//	}
 }

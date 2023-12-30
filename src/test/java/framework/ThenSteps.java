@@ -12,33 +12,30 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.Point;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import framework.utils.PageLocatorsManager;
 import framework.utils.TestContext;
+import framework.utils.WaitUtils;
 import io.cucumber.java.en.Then;
 
 public class ThenSteps extends SupportSteps{
 
-	private static WebDriver driver;
 	private Logger logger;
 	private TestContext testContext;
+	private WaitUtils waitUtils;
 
 	public ThenSteps() {
 		super(Hooks.getThreadSafeDriver());
-		driver = super.driver;
-		driver = Hooks.getThreadSafeDriver();
+//		driver = super.driver;
 		logger = Hooks.getThreadSafeLogger();
 		testContext = Hooks.getThreadSafeTestContext();
-		
+		waitUtils = new WaitUtils();
 	}
 
 	@Then("^I expect that the title is( not)* \"(.*)\"$")
@@ -156,6 +153,12 @@ public class ThenSteps extends SupportSteps{
 	public void checkEqualsText(String elementType, String elementSelector, String not, String expected_text) {
 		expected_text = expected_text.replace("\\n", "\n");
 		String actual_text = getElement(elementSelector).getText().trim();
+		try {
+			Thread.sleep(8000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		if ("not".equals(not)) {
 			logger.info("Verifying that {} '{}' does not match the text '{}'. Actual text: '{}'", elementType,
@@ -603,20 +606,5 @@ public class ThenSteps extends SupportSteps{
 			assertTrue("Alertbox does not contain the expected text", actualText.contains(expectedText));
 		}
 	}
-
-//	private By getLocator(String elementSelector) {
-//		PageLocatorsManager pageLocatorsManager = new PageLocatorsManager(driver);
-//		return pageLocatorsManager.getLocator(elementSelector);
-//	}
-//
-//	private WebElement getElement(String elementSelector) {
-//		By locatorvalue = getLocator(elementSelector);
-//		return driver.findElement(locatorvalue);
-//	}
-//
-//	private List<WebElement> getElements(String elementSelector) {
-//		By locatorvalue = getLocator(elementSelector);
-//		return driver.findElements(locatorvalue);
-//	}
 
 }

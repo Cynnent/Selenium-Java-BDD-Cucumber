@@ -1,8 +1,9 @@
 package framework;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -10,7 +11,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import framework.utils.LogUtils;
 import framework.utils.TestContext;
@@ -24,6 +25,7 @@ public class Hooks {
 	private static final ThreadLocal<Logger> logger = ThreadLocal.withInitial(LogManager::getLogger);
 	private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
 	private static final ThreadLocal<TestContext> testContext = ThreadLocal.withInitial(TestContext::new);
+	private static final ThreadLocal<WebDriverWait> wait=new ThreadLocal<>();
 
 	@Before
 	public void setup() {
@@ -41,12 +43,7 @@ public class Hooks {
 					chromedriver();
 					break;
 				case "firefox":
-					System.setProperty("webdriver.gecko.driver", "./Drivers/GeckoDriver.exe");
-					FirefoxOptions options = new FirefoxOptions();
-					driver.set(new FirefoxDriver(options));
-					break;
-				case "ie":
-					driver.set(new InternetExplorerDriver());
+					firefoxdriver();
 					break;
 				case "edge":
 					edgedriver();
@@ -67,11 +64,22 @@ public class Hooks {
 	private void chromedriver() {
 		WebDriverManager.chromedriver().setup();
 		driver.set(new ChromeDriver());
+		wait.set(new WebDriverWait(getThreadSafeDriver(), Duration.ofSeconds(10,0)));
 	}
 
 	private void edgedriver() {
-		System.setProperty("webdriver.edge.driver", "./Drivers/edgedriver.exe");
+//		System.setProperty("webdriver.edge.driver", "./Drivers/edgedriver.exe");
+		WebDriverManager.edgedriver().setup();
 		driver.set(new EdgeDriver());
+		wait.set(new WebDriverWait(getThreadSafeDriver(), Duration.ofSeconds(10,0)));
+	}
+	
+	private void firefoxdriver() {
+//		System.setProperty("webdriver.gecko.driver", "./Drivers/GeckoDriver.exe");
+		WebDriverManager.firefoxdriver().setup();
+		FirefoxOptions options = new FirefoxOptions();
+		driver.set(new FirefoxDriver(options));
+		wait.set(new WebDriverWait(getThreadSafeDriver(), Duration.ofSeconds(10,0)));
 	}
 
 	@After
@@ -112,4 +120,9 @@ public class Hooks {
 	public static Logger getThreadSafeLogger() {
 		return logger.get();
 	}
+	
+	public static WebDriverWait getThreadSafeWait() {
+		return wait.get();
+	}
+	
 }

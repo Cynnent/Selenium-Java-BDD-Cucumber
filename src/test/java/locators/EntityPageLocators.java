@@ -6,7 +6,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 public class EntityPageLocators {
-	@FindBy(css = "input[type='text']")
+	@FindBy(css = "span.labelStyle")
 	public WebElement loc_txt_entityname;
 
 	@FindBy(css = "input[type='text']")

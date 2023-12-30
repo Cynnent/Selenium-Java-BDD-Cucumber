@@ -1,4 +1,3 @@
-// PageLocatorsInitializer.java
 package locators;
 
 import org.openqa.selenium.WebDriver;

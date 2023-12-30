@@ -8,28 +8,27 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 
 import framework.utils.LogUtils;
-import framework.utils.PageLocatorsManager;
 import framework.utils.TestContext;
+import framework.utils.WaitUtils;
 import io.cucumber.java.en.When;
 
 public class WhenSteps extends SupportSteps{
 
-	private static WebDriver driver;
 	private Logger logger;
 	private TestContext testContext;
+	private WaitUtils waitUtils;
 
 	public WhenSteps() {
 		super(Hooks.getThreadSafeDriver());
-		driver = super.driver;
-		driver = Hooks.getThreadSafeDriver();
+//		driver = super.driver;
 		logger = Hooks.getThreadSafeLogger();
 		testContext = Hooks.getThreadSafeTestContext();
+		waitUtils = new WaitUtils();
 	}
 
 	@When("I (click|doubleclick) on the (link|button|element) \"(.*)\"$")
@@ -37,6 +36,7 @@ public class WhenSteps extends SupportSteps{
 		WebElement element = super.getElement(elementSelector);
 		LogUtils.logInfo(logger, "Performing {} on {} with selector '{}'", action, elementType, elementSelector);
 		if ("click".equals(action)) {
+			waitUtils.waitForElementToBeClickable(getLocator(elementSelector));
 			element.click();
 		} else if ("doubleclick".equals(action)) {
 			new Actions(driver).doubleClick(element).build().perform();
@@ -238,19 +238,4 @@ public class WhenSteps extends SupportSteps{
 		driver.switchTo().frame(driver.findElement(locator));
 		LogUtils.logInfo(logger, "Switching to the iframe with selector '{}'", iframeSelector);
 	}
-
-//	private By getLocator(String elementSelector) {
-//		PageLocatorsManager pageLocatorsManager = new PageLocatorsManager(driver);
-//		return pageLocatorsManager.getLocator(elementSelector);
-//	}
-//
-//	private WebElement getElement(String elementSelector) {
-//		By locatorvalue = getLocator(elementSelector);
-//		return driver.findElement(locatorvalue);
-//	}
-//
-//	private List<WebElement> getElements(String elementSelector) {
-//		By locatorvalue = getLocator(elementSelector);
-//		return driver.findElements(locatorvalue);
-//	}
 }
