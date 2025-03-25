@@ -17,7 +17,7 @@ import framework.utils.TestContext;
 import framework.utils.WaitUtils;
 import io.cucumber.java.en.When;
 
-public class WhenSteps extends SupportSteps{
+public class WhenSteps extends SupportSteps {
 
 	private Logger logger;
 	private TestContext testContext;
@@ -31,7 +31,7 @@ public class WhenSteps extends SupportSteps{
 		waitUtils = new WaitUtils();
 	}
 
-	@When("I (click|doubleclick) on the (link|button|element) \"(.*)\"$")
+	@When("I (click|doubleclick) on the (link|button|element|inputfield) \"(.*)\"$")
 	public void clickElement(String action, String elementType, String elementSelector) {
 		WebElement element = super.getElement(elementSelector);
 		LogUtils.logInfo(logger, "Performing {} on {} with selector '{}'", action, elementType, elementSelector);

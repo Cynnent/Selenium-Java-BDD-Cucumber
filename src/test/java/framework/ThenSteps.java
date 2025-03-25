@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -95,7 +96,7 @@ public class ThenSteps extends SupportSteps{
 		}
 	}
 
-	@Then("^I expect that element \"(.*)\" becomes( not)* displayed$")
+	@Then("^I expect that element \"(.*)\" becomes( not)? displayed$")
 	public void waitForElementToBeDisplayed(String elementSelector, String not) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		WebElement element = getElement(elementSelector);
@@ -109,7 +110,7 @@ public class ThenSteps extends SupportSteps{
 		}
 	}
 
-//	@Then("^I expect that element \"(.*)\" is( not)* within the viewport$")
+//	@Then("^I expect that element \"(.*)\" is( not)? within the viewport$")
 	public void checkWithinViewport(String elementSelector, String not) {
 //		WebElement element = getElement(elementSelector);
 //	        boolean isWithinViewport = ((JavascriptExecutor) driver).executeScript("return arguments[0].getBoundingClientRect().top >= 0", element);
@@ -121,7 +122,7 @@ public class ThenSteps extends SupportSteps{
 //	        }
 	}
 
-	@Then("^I expect that element \"(.*)\" does( not)* exist$")
+	@Then("^I expect that element \"(.*)\" does( not)? exist$")
 	public void checkIsExisting(String elementSelector, String not) {
 		WebElement element = getElement(elementSelector);
 
@@ -325,11 +326,12 @@ public class ThenSteps extends SupportSteps{
 
 	}
 
-	@Then("^I expect that element \"(.*)\" is( not)* enabled$")
+	@Then("^I expect that element \"(.*)\" is( not)? enabled$")
 	public void isEnabled(String elementSelector, String not) {
 		WebElement element = getElement(elementSelector);
+		boolean isNot = "not".equalsIgnoreCase(Optional.ofNullable(not).orElse("").trim());
 
-		if ("not".equals(not)) {
+		if (isNot) {
 			logger.info("Verifying that element '{}' is not enabled", elementSelector);
 			assertFalse(element.isEnabled());
 		} else {
@@ -575,7 +577,7 @@ public class ThenSteps extends SupportSteps{
 		}
 	}
 
-	@Then("^I expect that a (alertbox|confirmbox|prompt)( not)* contains the text \"(.*)\"$")
+	@Then("^I expect that a (alertbox|confirmbox|prompt)( not)? contains the text \"(.*)\"$")
 	public void verifyModalText(String type, String not, String expectedText) {
 		boolean unexpectedPresent = not.contains("not");
 		String actualText = "";
