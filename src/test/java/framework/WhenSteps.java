@@ -97,9 +97,13 @@ public class WhenSteps extends SupportSteps {
 		LogUtils.logInfo(logger, "Deleting cookie '{}'", cookieName);
 	}
 
-	@When("I press \"(.*)\"$")
-	public void pressButton(String key) {
+	@When("I press the key \"(.*)\"$")
+	public void presskey(String key) {
 		LogUtils.logInfo(logger, "Pressing key '{}'", key);
+//		WebElement activeElement = driver.switchTo().activeElement(); // Get focused input field
+//		activeElement.sendKeys(Keys.chord(Keys.CONTROL, "a")); // Select all text
+//		activeElement.sendKeys(Keys.DELETE); // Delete selected text
+		pressKeys(key);
 		// Implement the logic for pressing a key if needed
 	}
 
