@@ -171,21 +171,12 @@ public class WhenSteps extends SupportSteps {
 		}
 	}
 
-	@When("I select the (\\d+)(st|nd|rd|th) option for element \"(.*)\"$")
-	public void selectOptionByIndex(int index, String suffix, String elementSelector) {
+	@When("I select the (\\d+)(?:st|nd|rd|th) option for element \"(.*)\"$")
+	public void selectOptionByIndex(int index, String elementSelector) {
 		WebElement selectElement = getElement(elementSelector);
 		Select select = new Select(selectElement);
-		if (suffix.equals("st")) {
-			select.selectByIndex(index - 1);
-		} else if (suffix.equals("nd")) {
-			select.selectByIndex(index - 2);
-		} else if (suffix.equals("rd")) {
-			select.selectByIndex(index - 3);
-		} else {
-			select.selectByIndex(index);
-		}
-		LogUtils.logInfo(logger, "Selecting the {} option for element with selector '{}'", index + suffix,
-				elementSelector);
+		select.selectByIndex(index - 1); // Adjusting for 0-based index
+		LogUtils.logInfo(logger, "Selecting the {} option for element with selector '{}'", index, elementSelector);
 	}
 
 	@When("I select the option with the (name|value|text) \"(.*)\" for element \"(.*)\"$")
@@ -215,7 +206,7 @@ public class WhenSteps extends SupportSteps {
 				+ "\" not found in element \"" + elementSelector + "\".");
 	}
 
-	@When("I move to element \"(.*)\"(?: with an offset of (\\d+),(\\d+))*$")
+	@When("I move to element \"(.*)\"(?: with an offset of (\\d+),(\\d+))?$")
 	public void moveTo(String elementSelector, Integer offsetX, Integer offsetY) {
 		WebElement element = getElement(elementSelector);
 		Actions actions = new Actions(driver);

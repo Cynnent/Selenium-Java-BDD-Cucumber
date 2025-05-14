@@ -86,6 +86,9 @@ public class Hooks {
 	public void teardown(Scenario scenario) {
 		afterScenario(scenario);
 		getThreadSafeDriver().quit();
+		testContext.remove(); // Clean up TestContext
+	    logger.remove();      // Clean up logger
+	    wait.remove();        // Clean up WebDriverWait
 	}
 
 	public static synchronized WebDriver getThreadSafeDriver() {
