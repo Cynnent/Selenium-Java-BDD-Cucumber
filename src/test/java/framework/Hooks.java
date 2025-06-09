@@ -11,6 +11,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import framework.utils.LogUtils;
@@ -54,7 +55,7 @@ public class Hooks {
 				}
 			}
 
-			LogUtils.logInfo(logger.get(), "Opening Browser...." + browser);
+			LogUtils.logInfo(logger.get(), "Opening Browser.... Browser Name : '" + ((RemoteWebDriver) driver.get()).getCapabilities().getBrowserName() +"', Browser Version : '" + ((RemoteWebDriver) driver.get()).getCapabilities().getBrowserVersion()+'"');
 			LogUtils.logInfo(logger.get(), "Navigating to the home page");
 		} catch (Exception e) {
 			LogUtils.logError(logger.get(), "WebDriver initialization: {}", e.toString());
