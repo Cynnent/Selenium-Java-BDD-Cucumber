@@ -10,6 +10,9 @@ import org.openqa.selenium.support.FindBy;
 
 import locators.PageLocatorsInitializer;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class PageLocatorsManager {
 
 	private final WebDriver driver;
@@ -76,123 +79,98 @@ public class PageLocatorsManager {
 		throw new IllegalArgumentException(
 				"Field: " + fieldName + " not found with @FindBy annotation in any pageLocators");
 	}
-
+	
+	/**
+	 * Extracts a {@link By} locator from a {@link WebElement} by parsing its string representation.
+	 * <p>
+	 * This method relies on the default {@code toString()} format of WebElement, which typically
+	 * includes the locator strategy and value in the format:
+	 * <pre>
+	 * [[ChromeDriver: chrome on windows (session-id)] -> locatorType: locatorValue]
+	 * </pre>
+	 * Supported locator types include: id, name, css selector, class name, tag name, link text, 
+	 * partial link text, and xpath.
+	 * </p>
+	 *
+	 * @param webElement the {@link WebElement} instance from which to extract the locator
+	 * @return a {@link By} object representing the locator used to find the given element
+	 * @throws IllegalArgumentException if the WebElement string format is unrecognized or unsupported
+	 * @throws UnsupportedOperationException if the locator type is not supported
+	 */	
 	private By getByFromWebElement(WebElement webElement) {
-		String elementString = webElement.toString();
+	    String elementString = webElement.toString();
 
-		// Find the index of " -> " and extract the substring after it
-		String substringAfterArrow = elementString.substring(elementString.indexOf(" -> ") + 4);
+	    // Example: [[ChromeDriver: chrome on windows (session-id)] -> name: password]
+	    int arrowIndex = elementString.indexOf("->");
+	    if (arrowIndex == -1) {
+	        throw new IllegalArgumentException("Unexpected WebElement format: " + elementString);
+	    }
 
-		// Replace consecutive "]" with a single "]" and remove the last "]" after "}"
-		String cleanedString = substringAfterArrow.replaceAll("\\]+", "]").replaceFirst("\\]$", "");
+	    String locatorPart = elementString.substring(arrowIndex + 2).trim();
 
-		// Split the remaining string
-		String[] locatorParts = cleanedString.split(": ");
+	    // Remove the trailing bracket if it exists
+	    if (locatorPart.endsWith("]")) {
+	        locatorPart = locatorPart.substring(0, locatorPart.length() - 1).trim();
+	    }
 
-		String locatorType = locatorParts[0].trim();
-		String locatorValue = locatorParts[1].trim();
+	    // Split into locator type and value
+	    int splitIndex = locatorPart.indexOf(":");
+	    if (splitIndex == -1) {
+	        throw new IllegalArgumentException("Unable to parse locator: " + locatorPart);
+	    }
 
-		// Remove the "]" after "}"
-		locatorValue = locatorValue.replaceAll("\\]$", "");
+	    String locatorType = locatorPart.substring(0, splitIndex).trim();
+	    String locatorValue = locatorPart.substring(splitIndex + 1).trim();
 
-		return switch (locatorType) {
-		case "css selector" -> By.cssSelector(locatorValue);
-		case "xpath" -> By.xpath(locatorValue);
-		case "id" -> By.id(locatorValue);
-		case "name" -> By.className(locatorValue);
-		// Add cases for other locator types (id, xpath, etc.) if needed
-		default -> throw new UnsupportedOperationException("Locator type not supported: " + locatorType);
-		};
+	    return switch (locatorType.toLowerCase()) {
+	        case "id" -> By.id(locatorValue);
+	        case "name" -> By.name(locatorValue);
+	        case "css selector" -> By.cssSelector(locatorValue);
+	        case "class name" -> By.className(locatorValue);
+	        case "tag name" -> By.tagName(locatorValue);
+	        case "link text" -> By.linkText(locatorValue);
+	        case "partial link text" -> By.partialLinkText(locatorValue);
+	        case "xpath" -> By.xpath(locatorValue);
+	        default -> throw new UnsupportedOperationException("Unsupported locator type: " + locatorType);
+	    };
 	}
+	
+//	private By getByFromWebElement(WebElement webElement) {
+//	    String elementString = webElement.toString();
+//
+//	    // Patterns that support both ':' and '=' with multi-word locator types
+//	    Pattern[] patterns = new Pattern[]{
+//	        // Matches: -> name: password  or -> css selector: input[name='email']
+//	        Pattern.compile("->\\s*([\\w\\s]+):\\s*(.+?)\\]?$"),
+//
+//	        // Matches: -> css selector = '#password']
+//	        Pattern.compile("->\\s*([\\w\\s]+)=\\s*['\"]?(.+?)['\"]?\\]?$"),
+//
+//	        // Fallback for WebElement(id='foo')
+//	        Pattern.compile(".*\\((\\w+)='(.+?)'\\).*")
+//	    };
+//
+//	    for (Pattern pattern : patterns) {
+//	        Matcher matcher = pattern.matcher(elementString);
+//	        if (matcher.find()) {
+//	            String locatorType = matcher.group(1).trim().toLowerCase();
+//	            String locatorValue = matcher.group(2).trim();
+//
+//	            return switch (locatorType) {
+//	                case "id" -> By.id(locatorValue);
+//	                case "name" -> By.name(locatorValue);
+//	                case "css selector", "cssselector", "css" -> By.cssSelector(locatorValue);
+//	                case "class name", "classname" -> By.className(locatorValue);
+//	                case "tag name", "tagname" -> By.tagName(locatorValue);
+//	                case "link text", "linktext" -> By.linkText(locatorValue);
+//	                case "partial link text", "partiallinktext" -> By.partialLinkText(locatorValue);
+//	                case "xpath" -> By.xpath(locatorValue);
+//	                default -> throw new UnsupportedOperationException("Unsupported locator type: " + locatorType);
+//	            };
+//	        }
+//	    }
+//
+//	    throw new IllegalArgumentException("Failed to extract locator from WebElement.toString(): " + elementString);
+//	}
 
-//    private By getByFromWebElement(WebElement webElement) {
-////        String[] locatorParts = webElement.toString().split(" -> ")[1].replace("]", "").split(": ");-- working but if we have multiple "]" it fails 
-//    	String locatorParts[] = webElement.toString().split(" -> ")[1].replaceFirst("]", "").split(": ");
-////    	String locatorParts[] = webElement.toString().split(" -> ")[1].split(": ");
-//    	
-//        
-//        // Find the last occurrence of "]"
-////        int lastBracketIndex = elementToString.lastIndexOf("]");
-////        
-////        // Remove the last "]" and split the remaining string
-////        String[] locatorParts = elementToString.substring(0, lastBracketIndex).split(": ");
-//
-//        String locatorType = locatorParts[0];
-//        String locatorValue = locatorParts[1];
-//
-//        return switch (locatorType.toLowerCase()) {
-//            case "css selector" -> By.cssSelector(locatorValue);
-//            case "xpath" -> By.xpath(locatorValue);
-//            case "id" -> By.id(locatorValue);
-//            // Add cases for other locator types if needed
-//            default -> throw new UnsupportedOperationException("Locator type not supported: " + locatorType);
-//        };
-//    }
 }
-
-//import java.lang.reflect.Field;
-//import java.util.HashMap;
-//import java.util.Map;
-//
-//import org.openqa.selenium.By;
-//import org.openqa.selenium.WebDriver;
-//import org.openqa.selenium.WebElement;
-//import org.openqa.selenium.support.FindBy;
-//
-//
-//
-//public class PageLocatorsManager {
-//
-//    private final WebDriver driver;
-//    private final Map<String, Object> pageLocatorsMap;
-//
-//    public PageLocatorsManager(WebDriver driver) {
-//        this.driver = driver;
-//        this.pageLocatorsMap = new HashMap<>();
-//        initializePageLocators();
-//    }
-//
-//    private void initializePageLocators() {
-//    	addPageLocators("LoginPageLocators", new LoginPageLocators(driver));
-//        addPageLocators("EntityPageLocators", new EntityPageLocators(driver));
-////        PageLocatorsInitializer initializer = new PageLocatorsInitializer(driver);
-////        initializer.initializePageLocators(this);
-//    }
-//
-//    public void addPageLocators(String key, Object pageLocators) {
-//        pageLocatorsMap.put(key, pageLocators);
-//    }
-//
-//    public By getLocator(String pageName, String fieldName) throws NoSuchFieldException, IllegalAccessException {
-//        Object pageLocators = pageLocatorsMap.get(pageName);
-//        if (pageLocators == null) {
-//            throw new IllegalArgumentException("PageLocators not found for page: " + pageName);
-//        }
-//
-//        Field[] fields = pageLocators.getClass().getDeclaredFields();
-//        for (Field field : fields) {
-//            if (field.isAnnotationPresent(FindBy.class) && field.getName().equals(fieldName)) {
-//                field.setAccessible(true);
-//                WebElement webElement = (WebElement) field.get(pageLocators);
-//                return getByFromWebElement(webElement);
-//            }
-//        }
-//
-//        throw new IllegalArgumentException("Locator not found for field: " + fieldName + " on page: " + pageName);
-//    }
-//    
-//    
-// 
-//
-//    private By getByFromWebElement(WebElement webElement) {
-//        String[] locatorParts = webElement.toString().split(" -> ")[1].replace("]", "").split(": ");
-//        String locatorType = locatorParts[0];
-//        String locatorValue = locatorParts[1];
-//
-//        return switch (locatorType) {
-//            case "css selector" -> By.cssSelector(locatorValue);
-//            // Add cases for other locator types (id, xpath, etc.) if needed
-//            default -> throw new UnsupportedOperationException("Locator type not supported: " + locatorType);
-//        };
-//    }
-//}
